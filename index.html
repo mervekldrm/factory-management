@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blueberry Factory Management System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/modules.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Blueberry Factory Management System</h1>
+        </header>
+
+        <nav>
+            <button onclick="showModule('supplierModule')">Suppliers</button>
+            <button onclick="showModule('purchaseModule')">Purchases</button>
+            <button onclick="showModule('inventoryModule')">Inventory</button>
+            <button onclick="showModule('salesModule')">Sales</button>
+            <button onclick="showModule('financialReportModule')">Reports</button>
+        </nav>
+
+        <!-- Supplier Management Module -->
+        <div id="supplierModule" class="module">
+            <h2>Supplier Management</h2>
+            <div class="module-actions">
+                <input type="text" id="farmerSearchInput" placeholder="Search farmers" oninput="searchAndFilterFarmers()" />
+                <input type="text" id="farmerLocationFilter" placeholder="Filter by location" oninput="searchAndFilterFarmers()" />
+                <button onclick="openAddFarmerModal()">Add New Farmer</button>
+            </div>
+            <table id="farmerTable">
+                <thead>
+                    <tr>
+                        <th>Farmer ID</th>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Location</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="farmerTableBody"></tbody>
+            </table>
+        </div>
+    <!-- Purchase Module -->
+        <div id="purchaseModule" class="module" style="display:none;">
+            <h2>Purchase Records</h2>
+            <div class="module-actions">
+                <button onclick="openAddPurchaseModal()">Log New Purchase</button>
+                <select id="purchaseSortBy">
+                    <option value="date">Sort by Date</option>
+                    <option value="farmer">Sort by Farmer</option>
+                    <option value="amount">Sort by Amount</option>
+                </select>
+                <select id="purchaseSortDirection">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+            <table id="purchaseTable">
+                <thead>
+                    <tr>
+                        <th>Purchase ID</th>
+                        <th>Farmer</th>
+                        <th>Date</th>
+                        <th>Quantity (kg)</th>
+                        <th>Price/kg</th>
+                        <th>Total Cost</th>
+                    </tr>
+                </thead>
+                <tbody id="purchaseTableBody"></tbody>
+            </table>
+            <div id="purchaseSummaryFilters">
+                <h3>Generate Purchase Summary</h3>
+                <select id="summaryFarmer">
+                    <option value="">All Farmers</option>
+                    <!-- Dynamically populate farmer options -->
+                </select>
+                <input type="date" id="summaryStartDate">
+                <input type="date" id="summaryEndDate">
+                <button onclick="showPurchaseSummary()">Generate Summary</button>
+            </div>
+            <div id="purchaseSummary" style="display:block;">
+                <h3>Purchase Summary</h3>
+                <p>Total Quantity: <span id="summaryTotalQuantity">0</span> kg</p>
+                <p>Total Cost: $<span id="summaryTotalCost">0</span></p>
+            </div>
+        </div>
+
+
+        <!-- Inventory Module -->
+        <div id="inventoryModule" class="module" style="display:none;">
+            <h2>Inventory Management</h2>
+            <table id="inventoryTable">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Weight</th>
+                        <th>Current Stock</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Small</td><td>100g</td><td id="smallStock">0</td><td>$2.99</td></tr>
+                    <tr><td>Medium</td><td>250g</td><td id="mediumStock">0</td><td>$6.99</td></tr>
+                    <tr><td>Large</td><td>500g</td><td id="largeStock">0</td><td>$12.99</td></tr>
+                    <tr><td>Extra Large</td><td>1kg</td><td id="extraLargeStock">0</td><td>$22.99</td></tr>
+                    <tr><td>Family Pack</td><td>2kg</td><td id="familyPackStock">0</td><td>$39.99</td></tr>
+                    <tr><td>Bulk Pack</td><td>5kg</td><td id="bulkPackStock">0</td><td>$89.99</td></tr>
+                    <tr><td>Premium</td><td>Custom</td><td id="premiumStock">0</td><td>Variable</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sales Module -->
+        <div id="salesModule" class="module" style="display:none;">
+            <h2>Sales Management</h2>
+            <div class="module-actions">
+                <button onclick="openNewSaleModal()">Create New Sale</button>
+            </div>
+            <table id="salesTable">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Total Price</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Financial Report Module -->
+        <div id="financialReportModule" class="module" style="display:none;">
+            <h2>Financial Report</h2>
+            <div class="module-actions">
+                <select id="reportPeriod">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+                <input type="date" id="reportStartDate" style="display:none;">
+                <input type="date" id="reportEndDate" style="display:none;">
+                <button onclick="generateFinancialReport()">Generate Report</button>
+            </div>
+            <div id="financialReportContent">
+                <h3>Expense Report</h3>
+                <p>Total Income: $<span id="totalIncome">0</span></p>
+                <p>Total Expenses: $<span id="totalExpenses">0</span></p>
+                <p>Net Profit: $<span id="netProfit">0</span></p>
+                <p>Time Period: <span id="selectedPeriod">N/A</span></p>
+                <p>Tax Liability: $<span id="taxLiability">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Farmer, Purchase, and Sale -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/app.js"></script>
+    <script src="js/farmers.js"></script>
+    <script src="js/purchases.js"></script>
+    <script src="js/sales.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/financial-report.js"></script>
+</body>
+</html>
