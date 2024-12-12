@@ -1,148 +1,140 @@
-// js/farmers.js
+// farmers.js
 
-import { saveToLocalStorage, loadFromLocalStorage } from './storage-utils.js';
+import { getData, saveData, deleteItem, filterData, exportToCSV } from './storage-utils.js';
 
-let farmers = [];
-// Function to load farmers from LocalStorage
-function loadFarmersFromLocalStorage() {
-    farmers = loadFromLocalStorage("farmers") || [];
-    updateFarmerTable();
-    populateFarmersDropdown();
-}
+let editingFarmerId = null; // Track farmer being edited
 
-function saveFarmersToLocalStorage() {
-    localStorage.setItem("farmers", JSON.stringify(farmers));
-}
-function addFarmer(name, contact, location) {
-    const farmer = {
-        id: farmers.length + 1,
-        name,
-        contact,
-        location
-    };
-    farmers.push(farmer);
-    updateFarmerTable();
-    populateFarmersDropdown();
-    saveFarmersToLocalStorage(); // Save to LocalStorage
-}
+function loadFarmersSection() {
+    const farmersContainer = document.getElementById('farmers-container');
 
+    farmersContainer.innerHTML = `
+        <h3>Manage Farmers</h3>
+        <form id="add-farmer-form">
+            <label for="farmer-id">Farmer ID:</label>
+            <input type="text" id="farmer-id" required>
 
-function updateFarmerTable(searchTerm = '', filterLocation = '') {
-    const tableBody = document.getElementById('farmerTableBody');
-    let filteredFarmers = farmers;
+            <label for="farmer-name">Name:</label>
+            <input type="text" id="farmer-name" required>
 
-    // Apply search filter
-    if (searchTerm !== '') {
-        filteredFarmers = farmers.filter(farmer =>
-            farmer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            farmer.location.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }
+            <label for="farmer-contact">Contact:</label>
+            <input type="text" id="farmer-contact" required>
 
-    // Apply location filter
-    if (filterLocation !== '') {
-        filteredFarmers = filteredFarmers.filter(farmer =>
-            farmer.location.toLowerCase().includes(filterLocation.toLowerCase())
-        );
-    }
+            <label for="farmer-location">Location:</label>
+            <input type="text" id="farmer-location" required>
 
-    tableBody.innerHTML = filteredFarmers.map(farmer => `
-        <tr>
-            <td>${farmer.id}</td>
-            <td>${farmer.name}</td>
-            <td>${farmer.contact}</td>
-            <td>${farmer.location}</td>
-            <td>
-                <button onclick="editFarmer(${farmer.id})">Edit</button>
-                <button onclick="deleteFarmer(${farmer.id})">Delete</button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function openAddFarmerModal() {
-    const modalContent = `
-        <h2>Add New Farmer</h2>
-        <form id="addFarmerForm">
-            <input type="text" id="farmerName" placeholder="Farmer Name" required>
-            <input type="text" id="farmerContact" placeholder="Contact Details" required>
-            <input type="text" id="farmerLocation" placeholder="Location" required>
-            <button type="submit">Add Farmer</button>
+            <button type="submit" id="add-update-button">Add Farmer</button>
         </form>
+
+        <div>
+            <input type="text" id="search-query" placeholder="Search by name or location">
+            <button id="search-button">Search</button>
+            <button id="export-button">Export to CSV</button>
+        </div>
+
+        <ul id="farmers-list"></ul>
     `;
-    
-    openModal(modalContent);
-    
-    document.getElementById('addFarmerForm').onsubmit = function(e) {
+
+    const farmersList = document.getElementById('farmers-list');
+    const farmers = getData('farmers');
+    updateFarmersList(farmersList, farmers);
+
+    const addFarmerForm = document.getElementById('add-farmer-form');
+    const addUpdateButton = document.getElementById('add-update-button');
+
+    addFarmerForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const name = document.getElementById('farmerName').value;
-        const contact = document.getElementById('farmerContact').value;
-        const location = document.getElementById('farmerLocation').value;
-        
-        addFarmer(name, contact, location);
-        closeModal();
-    };
+
+        const id = parseInt(document.getElementById('farmer-id').value);
+        const name = document.getElementById('farmer-name').value;
+        const contact = document.getElementById('farmer-contact').value;
+        const location = document.getElementById('farmer-location').value;
+
+        if (editingFarmerId) {
+            // Update existing farmer
+            const farmerIndex = farmers.findIndex((farmer) => farmer.id === editingFarmerId);
+            if (farmerIndex !== -1) {
+                farmers[farmerIndex] = { id, name, contact, location };
+
+                // Save the updated data
+                saveData('farmers', farmers);
+                updateFarmersList(farmersList, farmers);
+
+                // Reset the form and editing state
+                addFarmerForm.reset();
+                editingFarmerId = null;
+                addUpdateButton.textContent = 'Add Farmer';
+            }
+        } else {
+            // Add new farmer
+            const newFarmer = { id, name, contact, location };
+            farmers.push(newFarmer);
+
+            // Save to local storage
+            saveData('farmers', farmers);
+            updateFarmersList(farmersList, farmers);
+
+            // Reset the form
+            addFarmerForm.reset();
+        }
+    });
+
+    document.getElementById('search-button').addEventListener('click', () => {
+        const query = document.getElementById('search-query').value;
+        const filteredFarmers = filterData('farmers', 'name', query).concat(
+            filterData('farmers', 'location', query)
+        );
+        updateFarmersList(farmersList, filteredFarmers);
+    });
+
+    document.getElementById('export-button').addEventListener('click', () => {
+        exportToCSV('farmers', 'farmers.csv');
+    });
 }
-function editFarmer(id) {
-    const farmer = farmers.find(f => f.id === id);
-    if (farmer) {
-        const modalContent = `
-            <h2>Edit Farmer</h2>
-            <form id="editFarmerForm">
-                <input type="text" id="editFarmerName" value="${farmer.name}" required>
-                <input type="text" id="editFarmerContact" value="${farmer.contact}" required>
-                <input type="text" id="editFarmerLocation" value="${farmer.location}" required>
-                <button type="submit">Update Farmer</button>
-            </form>
+
+function updateFarmersList(container, farmers) {
+    container.innerHTML = ''; // Clear the list
+
+    farmers.forEach((farmer) => {
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `
+            ID: ${farmer.id}, Name: ${farmer.name}, Contact: ${farmer.contact}, Location: ${farmer.location}
+            <button class="edit-button" data-id="${farmer.id}">Edit</button>
+            <button class="delete-button" data-id="${farmer.id}">Delete</button>
         `;
+        container.appendChild(listItem);
+    });
 
-        openModal(modalContent);
+    // Attach event listeners to "Edit" buttons
+    container.querySelectorAll('.edit-button').forEach((button) => {
+        button.addEventListener('click', (e) => {
+            const id = parseInt(e.target.getAttribute('data-id'));
+            const farmer = farmers.find((farmer) => farmer.id === id);
 
-        document.getElementById('editFarmerForm').onsubmit = function(e) {
-            e.preventDefault();
-            farmer.name = document.getElementById('editFarmerName').value;
-            farmer.contact = document.getElementById('editFarmerContact').value;
-            farmer.location = document.getElementById('editFarmerLocation').value;
+            if (farmer) {
+                // Populate the form with farmer's details
+                document.getElementById('farmer-id').value = farmer.id;
+                document.getElementById('farmer-name').value = farmer.name;
+                document.getElementById('farmer-contact').value = farmer.contact;
+                document.getElementById('farmer-location').value = farmer.location;
 
-            updateFarmerTable();
-            populateFarmersDropdown();
-            saveFarmersToLocalStorage(); // Save to LocalStorage
-            closeModal();
-        };
-    }
+                // Set editing state
+                editingFarmerId = farmer.id; // Track the farmer being edited
+                document.getElementById('add-update-button').textContent = 'Update Farmer';
+            }
+        });
+    });
+
+    // Attach event listeners to "Delete" buttons
+    container.querySelectorAll('.delete-button').forEach((button) => {
+        button.addEventListener('click', (e) => {
+            const id = parseInt(e.target.getAttribute('data-id'));
+            const updatedFarmers = farmers.filter((farmer) => farmer.id !== id);
+
+            // Save the updated list and refresh the UI
+            saveData('farmers', updatedFarmers);
+            updateFarmersList(container, updatedFarmers);
+        });
+    });
 }
 
-
-function deleteFarmer(id) {
-    farmers = farmers.filter(farmer => farmer.id !== id);
-    updateFarmerTable();
-    populateFarmersDropdown();
-    saveFarmersToLocalStorage(); // Save to LocalStorage
-}
-
-
-// Add search and filter functionality
-function searchAndFilterFarmers() {
-    const searchInput = document.getElementById('farmerSearchInput');
-    const locationInput = document.getElementById('farmerLocationFilter');
-
-    const searchTerm = searchInput.value;
-    const filterLocation = locationInput.value;
-
-    updateFarmerTable(searchTerm, filterLocation);
-}
-function exportFarmersToCSV() {
-    const csvContent = "data:text/csv;charset=utf-8," + 
-        "ID,Name,Contact,Location\n" +
-        farmers.map(f => `${f.id},${f.name},${f.contact},${f.location}`).join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "farmers.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-window.onload = () => {
-    loadFarmersFromLocalStorage(); // Load data from LocalStorage when the page loads
-};
+export { loadFarmersSection };

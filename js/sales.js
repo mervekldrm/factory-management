@@ -1,87 +1,67 @@
-// js/sales.js
-import { saveToLocalStorage, loadFromLocalStorage } from './storage-utils.js';
+// sales.js
 
-let sales = [];
+import { getData, saveData } from './storage-utils.js';
 
-function saveSalesToLocalStorage() {
-    saveToLocalStorage("sales", sales);
-}
+// Function to manage sales
+function loadSalesSection() {
+    const salesContainer = document.getElementById('sales-container');
 
-function loadSalesFromLocalStorage() {
-    sales = loadFromLocalStorage("sales");
-    updateSalesTable();
-}
-
-
-function addSale(customerId, category, quantity, totalPrice, status) {
-    const sale = {
-        id: sales.length + 1,
-        customerId,
-        category,
-        quantity,
-        totalPrice,
-        status
-    };
-    sales.push(sale);
-    updateSalesTable();
-    updateInventory(category, -quantity);
-    updateRevenue(totalPrice);
-    saveSalesToLocalStorage(); // Save to LocalStorage
-}
-
-function updateSalesTable() {
-    const tableBody = document.getElementById('salesTableBody');
-    tableBody.innerHTML = sales.map(sale => `
-        <tr>
-            <td>${sale.id}</td>
-            <td>Customer ${sale.customerId}</td>
-            <td>${sale.category}</td>
-            <td>${sale.quantity}</td>
-            <td>$${sale.totalPrice.toFixed(2)}</td>
-            <td>${sale.status}</td>
-        </tr>
-    `).join('');
-}
-
-function openNewSaleModal() {
-    const modalContent = `
-        <h2>Create New Sale</h2>
-        <form id="newSaleForm">
-            <input type="number" id="saleCustomerId" placeholder="Customer ID" required>
-            <select id="saleCategory" required>
-                <option value="">Select Category</option>
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-                <option value="extraLarge">Extra Large</option>
-                <option value="familyPack">Family Pack</option>
-                <option value="bulkPack">Bulk Pack</option>
-                <option value="premium">Premium</option>
-            </select>
-            <input type="number" id="saleQuantity" placeholder="Quantity" required>
-            <input type="number" id="saleTotalPrice" placeholder="Total Price" required>
-            <select id="saleStatus" required>
-                <option value="">Select Status</option>
-                <option value="pending">Pending</option>
-                <option value="processed">Processed</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-            </select>
-            <button type="submit">Create Sale</button>
+    salesContainer.innerHTML = `
+        <h3>Log New Sale</h3>
+        <form id="add-sale-form">
+            <label for="sale-id">Sale ID:</label>
+            <input type="text" id="sale-id" required>
+            <label for="category">Product Category:</label>
+            <input type="text" id="category" required>
+            <label for="quantity">Quantity (kg):</label>
+            <input type="number" id="quantity" required>
+            <label for="price">Unit Price:</label>
+            <input type="number" id="price" step="0.01" required>
+            <button type="submit">Add Sale</button>
         </form>
+        <h3>Sales List</h3>
+        <ul id="sales-list"></ul>
     `;
-    
-    openModal(modalContent);
-    
-    document.getElementById('newSaleForm').onsubmit = function(e) {
-        e.preventDefault();
-        const customerId = parseInt(document.getElementById('saleCustomerId').value);
-        const category = document.getElementById('saleCategory').value;
-        const quantity = parseInt(document.getElementById('saleQuantity').value);
-        const totalPrice = parseFloat(document.getElementById('saleTotalPrice').value);
-        const status = document.getElementById('saleStatus').value;
-        
-        addSale(customerId, category, quantity, totalPrice, status);
-        closeModal();
-    };
+
+    const addSaleForm = document.getElementById('add-sale-form');
+    const salesList = document.getElementById('sales-list');
+
+    // Load existing sales from local storage
+    const sales = getData('sales');
+    updateSalesList(salesList, sales);
+
+    // Add sale form submission handler
+    addSaleForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const saleId = document.getElementById('sale-id').value;
+        const category = document.getElementById('category').value;
+        const quantity = parseFloat(document.getElementById('quantity').value);
+        const price = parseFloat(document.getElementById('price').value);
+
+        const totalPrice = quantity * price;
+        const newSale = { saleId, category, quantity, price, totalPrice };
+        sales.push(newSale);
+
+        // Save sales to local storage
+        saveData('sales', sales);
+
+        // Update the list
+        updateSalesList(salesList, sales);
+
+        // Reset the form
+        addSaleForm.reset();
+    });
 }
+
+// Function to update the sales list in the DOM
+function updateSalesList(container, sales) {
+    container.innerHTML = '';
+    sales.forEach((sale) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `ID: ${sale.saleId}, Category: ${sale.category}, Quantity: ${sale.quantity}kg, Price: $${sale.price.toFixed(2)}, Total: $${sale.totalPrice.toFixed(2)}`;
+        container.appendChild(listItem);
+    });
+}
+
+export { loadSalesSection };

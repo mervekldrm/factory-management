@@ -1,47 +1,51 @@
-// js/app.js
-// Global application logic and utility functions
+import { loadFarmersSection } from './farmers.js'; // Import dynamic section loaders
+import { loadPurchasesSection } from './purchases.js';
+import { loadInventorySection } from './inventory.js';
+import { loadSalesSection } from './sales.js';
+import { loadReportsSection } from './financial-report.js';
 
-// Module display function
-function showModule(moduleId) {
-    // Hide all modules
-    const modules = ['supplierModule', 'purchaseModule', 'inventoryModule', 'salesModule', 'financialReportModule'];
-    modules.forEach(module => document.getElementById(module).style.display = 'none');
+// Initialization
+window.addEventListener('DOMContentLoaded', () => {
+    console.log('Blueberry Factory Management System Initialized');
 
-    // Remove active class from buttons
-    document.querySelectorAll('nav button').forEach(button => button.classList.remove('active'));
+    // Load initial section (Farmers by default)
+    showSection('farmers');
 
-    // Show selected module and highlight button
-    document.getElementById(moduleId).style.display = 'block';
-    document.querySelector(`button[onclick="showModule('${moduleId}')"]`).classList.add('active');
-}
+    // Add event listeners to navigation links
+    document.querySelectorAll('nav ul li a').forEach(link => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            const sectionId = link.getAttribute('href').substring(1);
+            showSection(sectionId);
+        });
+    });
+});
 
+// Function to display the specified section and hide others
+function showSection(sectionId) {
+    const sections = document.querySelectorAll('main section');
+    sections.forEach((section) => {
+        section.style.display = section.id === sectionId ? 'block' : 'none';
+    });
 
-// Modal management
-const modal = document.getElementById('modal');
-const modalBody = document.getElementById('modalBody');
-const closeBtn = document.getElementsByClassName('close')[0];
-
-function openModal(content) {
-    modalBody.innerHTML = content;
-    modal.style.display = 'block';
-}
-
-function closeModal() {
-    modal.style.display = 'none';
-}
-
-// Close modal when clicking on close button
-closeBtn.onclick = closeModal;
-
-// Close modal when clicking outside of it
-window.onclick = function(event) {
-    if (event.target == modal) {
-        closeModal();
+    switch (sectionId) {
+        case 'farmers':
+            loadFarmersSection();
+            break;
+        case 'purchases':
+            loadPurchasesSection();
+            break;
+        case 'inventory':
+            loadInventorySection();
+            break;
+        case 'sales':
+            loadSalesSection();
+            break;
+        case 'reports':
+            loadReportsSection();
+            break;
+        default:
+            console.error(`Unknown section: ${sectionId}`);
     }
 }
-window.onload = () => {
-    loadFarmersFromLocalStorage();
-    loadPurchasesFromLocalStorage();
-    loadSalesFromLocalStorage();
-    loadFinancialMetricsFromLocalStorage();
-};
+
