@@ -1,5 +1,3 @@
-// farmers.js
-
 import { getData, saveData, deleteItem, filterData, exportToCSV } from './storage-utils.js';
 
 let editingFarmerId = null; // Track farmer being edited
@@ -7,6 +5,11 @@ let lastFarmerId = 0;
 
 function loadFarmersSection() {
     let farmers = getData('farmers') || [];
+
+    // Add mock data if storage is empty for testing
+    if (farmers.length > 0) {
+        lastFarmerId = Math.max(...farmers.map(farmer => farmer.id));
+    }
 
     const farmersContainer = document.getElementById('farmers-container');
 
@@ -26,8 +29,10 @@ function loadFarmersSection() {
         </form>
 
         <div>
-            <input type="text" id="search-query" placeholder="Search by name or location">
-            <button id="search-button">Search</button>
+            <input type="text" id="search-name-query" placeholder="Search by name">
+            <button id="search-name-button">Search by Name</button>
+            <input type="text" id="search-location-query" placeholder="Search by location">
+            <button id="search-location-button">Search by Location</button>
             <button id="export-button">Export to CSV</button>
         </div>
 
@@ -58,23 +63,45 @@ function loadFarmersSection() {
                 addUpdateButton.textContent = 'Add Farmer';
             }
         } else {
-            // Add new farmer
-            const newFarmer = { id: ++lastFarmerId, name, contact, location };
+            // Add new farmer with unique ID
+            lastFarmerId++; // Increment before creating the farmer
+            const newFarmer = { 
+                id: lastFarmerId, 
+                name, 
+                contact, 
+                location 
+            };
             farmers.push(newFarmer);
             saveData('farmers', farmers);
             updateFarmersList(farmersList, farmers);
             addFarmerForm.reset();
         }
     });
-
-    document.getElementById('search-button').addEventListener('click', () => {
-        const query = document.getElementById('search-query').value;
-        const filteredFarmers = filterData('farmers', 'name', query).concat(
-            filterData('farmers', 'location', query)
-        );
+    document.getElementById('search-name-button').addEventListener('click', () => {
+        const query = document.getElementById('search-name-query').value.trim();
+        let farmers = getData('farmers');
+        
+        if (!query) {
+            updateFarmersList(farmersList, farmers);
+            return;
+        }
+    
+        const filteredFarmers = farmers.filter(farmer => farmer.name.toLowerCase().includes(query.toLowerCase()));
         updateFarmersList(farmersList, filteredFarmers);
     });
+    document.getElementById('search-location-button').addEventListener('click', () => {
+        const query = document.getElementById('search-location-query').value.trim();
+        let farmers = getData('farmers');
 
+        if (!query) {
+            const farmers = getData('farmers');
+            updateFarmersList(farmersList, farmers);
+            return;
+        }
+    
+        const filteredFarmers = farmers.filter(farmer => farmer.location.toLowerCase().includes(query.toLowerCase()));
+        updateFarmersList(farmersList, filteredFarmers);
+    });
     document.getElementById('export-button').addEventListener('click', () => {
         exportToCSV('farmers', 'farmers.csv');
     });
@@ -83,12 +110,17 @@ function loadFarmersSection() {
 }
 
 function updateFarmersList(container, farmers) {
-    // Fetch the most recent farmers data from local storage
-    farmers = getData('farmers') || [];
 
     container.innerHTML = ''; // Clear the list
 
+    if (!farmers || farmers.length === 0) {
+        console.log('No farmers to display');
+        container.innerHTML = '<li>No farmers found</li>';
+        return;
+    }
+
     farmers.forEach((farmer) => {
+
         const listItem = document.createElement('li');
         listItem.innerHTML = `
             ID: ${farmer.id}, Name: ${farmer.name}, Contact: ${farmer.contact}, Location: ${farmer.location}
@@ -97,6 +129,7 @@ function updateFarmersList(container, farmers) {
         `;
         container.appendChild(listItem);
     });
+
 
     container.querySelectorAll('.edit-button').forEach((button) => {
         button.addEventListener('click', (e) => {
@@ -119,6 +152,7 @@ function updateFarmersList(container, farmers) {
             farmers = farmers.filter(farmer => farmer.id !== id);
             saveData('farmers', farmers);
             updateFarmersList(container, farmers);
+            location.reload(); // Refresh the webpage
         });
     });
 }

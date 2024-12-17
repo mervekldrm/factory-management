@@ -1,90 +1,81 @@
-/* styles.css */
-
-/* Global Styles */
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0;
     padding: 0;
     color: #333;
     background: url('../assets/blueberries-bg.jpg') no-repeat center center fixed;
     background-size: cover;
+    line-height: 1.6;
 }
 
 header {
+    position: relative;
     background: url('../assets/header.jpg') no-repeat center center;
     background-size: cover;
     color: white;
-    padding: 20px;
+    padding: 40px 20px;
     text-align: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-header h1 {
+h1 {
     margin: 0;
-    font-size: 36px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+nav {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 nav ul {
     list-style: none;
-    padding: 0;
-    margin-top: 10px;
     display: flex;
     justify-content: center;
-    gap: 20px;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    margin: 0 15px;
 }
 
 nav ul li a {
     color: white;
     text-decoration: none;
     font-weight: bold;
-    padding: 8px 15px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+    font-size: 1rem;
+    transition: color 0.3s ease;
 }
 
 nav ul li a:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    color: #094379;
 }
 
-/* Main Content */
-main {
-    padding: 20px;
-}
-
-section {
-    margin-bottom: 20px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-section h2 {
-    margin-top: 0;
-    color: #346583;
-}
-
+/* Footer Styling */
 footer {
     background-color: #346583;
     color: white;
     text-align: center;
-    padding: 10px 0;
-    position: fixed;
-    bottom: 0;
+    padding: 10px 15px;
+    box-sizing: border-box;
+    position: relative;
     width: 100%;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
-}
-main section {
-    display: none;
-    padding: 20px;
-    margin: 20px 0;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    bottom: 0;
+    margin-top: auto;
 }
 
-main section:target {
-    display: block;
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    section {
+        padding: 15px;
+    }
+
+    footer {
+        font-size: 0.8rem;
+        padding: 8px;
+    }
 }

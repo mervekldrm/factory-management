@@ -1,51 +1,91 @@
-/* modules.css */
+/* Module-Specific Styles */
+section {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-/* Farmers Section */
-#farmers-container {
+/* Form Styling */
+form {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-between;
 }
 
-#farmers-container form {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 10px;
-    background-color: #f2f2f2;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+form label {
+    flex: 1 1 100%;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    color: #333;
 }
 
-#farmers-container input {
-    padding: 5px;
+form input, 
+form select {
+    flex: 1 1 calc(48% - 10px);
+    padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 3px;
+    border-radius: 5px;
+    font-size: 0.9rem;
 }
 
-#farmers-container button {
-    grid-column: 1 / span 2;
-    padding: 10px;
-    background-color: #75957C;
+form input[type="date"], 
+form input[type="number"], 
+form select {
+    width: 100%;
+}
+
+form button {
+    flex: 1 1 100%;
+    max-width: 200px;
+    margin: 0 auto;
+    padding: 10px 15px;
+    background-color: #034d64;
     color: white;
+    font-size: 0.9rem;
     border: none;
-    border-radius: 3px;
+    border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-#farmers-container button:hover {
-    background-color: #3B777D;
+form button:hover {
+    background-color: #0d7595;
+    transform: scale(1.05);
 }
 
-#farmers-list {
-    list-style: none;
-    padding: 0;
-}
-
-#farmers-list li {
-    background-color: #fff;
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
     border: 1px solid #ddd;
+}
+
+table th, 
+table td {
     padding: 10px;
-    border-radius: 3px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+}
+
+table tr:hover {
+    background-color: rgba(74, 144, 226, 0.5);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    form {
+        flex-direction: column;
+    }
+
+    form input, 
+    form select, 
+    form button {
+        flex: 1 1 100%;
+    }
 }
