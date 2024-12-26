@@ -77,6 +77,45 @@ table tr:hover {
     background-color: rgba(74, 144, 226, 0.5);
 }
 
+/* Financial Report Table Styles */
+.report-table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.report-table th {
+    background-color: #034d64;
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+
+.report-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.report-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.report-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Financial Summary specific styles */
+.report-table tbody tr td:first-child {
+    font-weight: bold;
+    color: #333;
+}
+
+.report-table tbody tr td:last-child {
+    text-align: right;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     form {

@@ -132,9 +132,26 @@ function loadSalesSection() {
         // Calculate total price
         const totalPrice = quantity * unitPrice;
 
+        // Get or create customers array
+        let customers = getData('customers') || [];
+        let customerId;
+        let existingCustomer = customers.find(c => c.name.toLowerCase() === customerName.toLowerCase());
+        
+        if (existingCustomer) {
+            customerId = existingCustomer.id;
+        } else {
+            customerId = Number(customers.length + 1);
+            customers.push({
+                id: customerId,
+                name: customerName
+            });
+            saveData('customers', customers);
+        }
+
         // Create sale object
         const newSale = {
             orderId,
+            customerId: Number(customerId),
             customerName,
             category: productCategory,
             quantity,

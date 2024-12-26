@@ -62,6 +62,7 @@ function loadPurchasesSection() {
         console.log('Form submitted');
 
         const farmerId = document.getElementById('farmer-id').value;
+        const farmerName = document.getElementById('farmer-id').options[document.getElementById('farmer-id').selectedIndex].text.split(' - ')[1];
         const purchaseDate = new Date(document.getElementById('purchase-date').value);
         const formattedDate = `${purchaseDate.getMonth() + 1}/${purchaseDate.getDate()}/${purchaseDate.getFullYear()}`;
         const quantity = parseFloat(document.getElementById('quantity').value);
@@ -99,7 +100,15 @@ function loadPurchasesSection() {
         
         saveData('purchaseIdCounter', purchaseId + 1); // Increment counter
 
-        const newPurchase = { purchaseId, farmerId, purchaseDate: formattedDate, quantity, price, totalCost };
+        const newPurchase = { 
+            purchaseId, 
+            farmerId, 
+            farmerName,
+            purchaseDate: formattedDate, 
+            quantity, 
+            price, 
+            totalCost 
+        };
         purchases.push(newPurchase);
 
         // Save purchases to local storage
