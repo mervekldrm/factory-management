@@ -133,9 +133,9 @@ function loadPurchasesSection() {
         }
 
         if (filterDate) {
-            const formattedFilterDate = new Date(filterDate).toISOString().split('T')[0];
             filteredPurchases = filteredPurchases.filter(purchase => {
                 const purchaseDate = new Date(purchase.purchaseDate).toISOString().split('T')[0];
+                const formattedFilterDate = new Date(filterDate).toISOString().split('T')[0];
                 return purchaseDate === formattedFilterDate;
             });
         }

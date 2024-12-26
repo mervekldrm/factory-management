@@ -121,9 +121,21 @@ function loadSalesSection() {
         const inventory = getData('inventory') || [];
         const inventoryItem = inventory.find(item => item.category === productCategory);
 
-        if (!inventoryItem || inventoryItem.quantityAvailable < quantity) {
-            alert('Insufficient inventory for the selected category and quantity.');
+        // Detaylı inventory kontrolü
+        if (!inventoryItem) {
+            alert(`Error: ${productCategory} is not available in inventory!`);
             return;
+        }
+
+        if (inventoryItem.quantityAvailable < quantity) {
+            alert(`Insufficient inventory for ${productCategory}!\nAvailable: ${inventoryItem.quantityAvailable.toFixed(2)} kg\nRequested: ${quantity} kg`);
+            return;
+        }
+
+        if (inventoryItem.quantityAvailable - quantity < inventoryItem.reorderLevel) {
+            if (!confirm(`Warning: This sale will bring inventory below reorder level.\nCurrent stock: ${inventoryItem.quantityAvailable.toFixed(2)} kg\nReorder Level: ${inventoryItem.reorderLevel} kg\nDo you want to continue?`)) {
+                return;
+            }
         }
 
         // Generate unique order ID
